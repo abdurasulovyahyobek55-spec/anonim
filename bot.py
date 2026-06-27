@@ -1,3 +1,5 @@
+import os
+from aiohttp import web  # Buni qo'shish kerak
 import asyncio
 import logging
 import sys
@@ -13,7 +15,8 @@ from handlers.start import router as start_router
 from handlers.admin import router as admin_router
 from handlers.message import router as message_router
 from handlers.reply import router as reply_router
-
+async def handle(request):
+    return web.Response(text="Bot is running!")
 
 async def main():
     # Logging sozlash
@@ -28,7 +31,16 @@ async def main():
     if not BOT_TOKEN:
         logging.error("XATO: .env faylida BOT_TOKEN topilmadi!")
         return
-
+# 2. Render uchun portni ochish (Veb-serverni ishga tushirish)
+    app = web.Application()
+    app.router.add_get('/', handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    # Render avtomatik PORT o'zgaruvchisini beradi, bo'lmasa 8080 ishlatiladi
+    site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get("PORT", 8080)))
+    await site.start()
+    logging.info("Veb-server (port) ishga tushdi.")
+    
     # Ma'lumotlar bazasini ishga tushirish
     await init_db()
     logging.info("Ma'lumotlar bazasi muvaffaqiyatli ishga tushirildi.")
