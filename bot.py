@@ -49,13 +49,11 @@ async def main():
     dp.include_router(reply_router)
     dp.include_router(message_router)  # Message oxirida tursin, chunki u "/" bo'lmagan barcha matnlarni tutadi
 
-    # Polling boshlash
+   # Polling boshlash
     logging.info("Bot ishga tushmoqda...")
     try:
+        # Eski so'rovlarni tozalash (Conflict oldini olish uchun)
+        await bot.delete_webhook(drop_pending_updates=True) 
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
